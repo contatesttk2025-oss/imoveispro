@@ -421,3 +421,16 @@ tr:hover td { background: var(--surface2); }
   .splash-card { padding: 36px 28px; }
   .splash-title { font-size: 28px; }
 }
+
+/* ===== WHATSAPP BUTTON ===== */
+.whats-btn {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+.whats-btn:hover {
+  background: #dcfce7;
+  border-color: #25D366;
+  color: #15803d;
+}
+.whats-btn i { color: #25D366; font-size: 16px; }

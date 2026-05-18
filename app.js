@@ -450,6 +450,8 @@ function renderImoveis() {
     const inq = DB.inqs.find(i => i.id === im.inqId);
     const prop = DB.props.find(p => p.id === im.propId);
     const status = getImovelStatus(im);
+    const now = new Date();
+    const mes = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
     return `<tr>
       <td><strong class="link-text" onclick="goPage('detalhe','${im.id}')">${im.nome || '—'}</strong></td>
       <td>${inq ? inq.nome : '<span style="color:var(--text3)">—</span>'}</td>
@@ -460,6 +462,7 @@ function renderImoveis() {
       <td><div class="acts">
         <button class="btn btn-sm" title="Ver detalhes" onclick="goPage('detalhe','${im.id}')"><i class="ti ti-eye"></i></button>
         <button class="btn btn-sm" title="Editar" onclick="editImovel('${im.id}')"><i class="ti ti-edit"></i></button>
+        ${status !== 'pago' ? `<button class="btn btn-sm whats-btn" title="Cobrar inquilino via WhatsApp" onclick="whatsCobrancaInquilino('${im.id}','${mes}')"><i class="ti ti-brand-whatsapp"></i></button>` : `<button class="btn btn-sm whats-btn" title="Confirmar recebimento via WhatsApp" onclick="whatsConfirmacaoInquilino('${im.id}','${mes}')"><i class="ti ti-brand-whatsapp"></i></button>`}
         <button class="btn btn-sm btn-danger" title="Excluir" onclick="delImovel('${im.id}')"><i class="ti ti-trash"></i></button>
       </div></td>
     </tr>`;
@@ -492,6 +495,7 @@ function renderProps() {
     <td>${p.tel || '—'}</td>
     <td style="font-size:12px">${p.email || '—'}</td>
     <td><div class="acts">
+      <button class="btn btn-sm whats-btn" title="Enviar WhatsApp" onclick="whatsPersonalizado('${p.nome}','${p.tel}')"><i class="ti ti-brand-whatsapp"></i></button>
       <button class="btn btn-sm" onclick="editProp('${p.id}')"><i class="ti ti-edit"></i></button>
       <button class="btn btn-sm btn-danger" onclick="delProp('${p.id}')"><i class="ti ti-trash"></i></button>
     </div></td>
@@ -524,6 +528,7 @@ function renderInqs() {
       <td>${i.tel || '—'}</td>
       <td style="font-size:12px">${contrato}</td>
       <td><div class="acts">
+        ${im ? `<button class="btn btn-sm whats-btn" title="Cobrar via WhatsApp" onclick="whatsCobrancaInquilino('${im.id}',null)"><i class="ti ti-brand-whatsapp"></i></button>` : `<button class="btn btn-sm whats-btn" title="Enviar WhatsApp" onclick="whatsPersonalizado('${i.nome}','${i.tel}')"><i class="ti ti-brand-whatsapp"></i></button>`}
         <button class="btn btn-sm" onclick="editInq('${i.id}')"><i class="ti ti-edit"></i></button>
         <button class="btn btn-sm btn-danger" onclick="delInq('${i.id}')"><i class="ti ti-trash"></i></button>
       </div></td>
@@ -566,10 +571,12 @@ function renderPagamentos() {
     <td style="font-size:12px;color:var(--text2)">${pag && pag.data ? pag.data.split('-').reverse().join('/') : '—'}</td>
     <td>${badgeHtml(status)}</td>
     <td><div class="acts">
-      ${pag
-        ? `<button class="btn btn-sm" onclick="editPag('${pag.id}')"><i class="ti ti-edit"></i></button>
+      ${status === 'pago'
+        ? `<button class="btn btn-sm whats-btn" title="Confirmar recebimento via WhatsApp" onclick="whatsConfirmacaoInquilino('${im.id}','${mesStr}')"><i class="ti ti-brand-whatsapp"></i></button>
+           <button class="btn btn-sm" onclick="editPag('${pag.id}')"><i class="ti ti-edit"></i></button>
            <button class="btn btn-sm btn-danger" onclick="delPag('${pag.id}')"><i class="ti ti-trash"></i></button>`
-        : `<button class="btn btn-primary btn-sm" onclick="curImovelId='${im.id}';openModal('modal-pag')"><i class="ti ti-plus"></i>Registrar</button>`
+        : `<button class="btn btn-sm whats-btn" title="Cobrar inquilino via WhatsApp" onclick="whatsCobrancaInquilino('${im.id}','${mesStr}')"><i class="ti ti-brand-whatsapp"></i></button>
+           <button class="btn btn-primary btn-sm" onclick="curImovelId='${im.id}';openModal('modal-pag')"><i class="ti ti-plus"></i>Registrar</button>`
       }
     </div></td>
   </tr>`).join('');
@@ -631,9 +638,13 @@ function renderRepasses() {
     <td style="font-weight:600;color:var(--accent)">${fmtShort(liq)}</td>
     <td>
       ${rep
-        ? `<span class="badge badge-ok"><i class="ti ti-check"></i>Repassado em ${rep.data ? rep.data.split('-').reverse().join('/') : '—'}</span>`
+        ? `<div style="display:flex;flex-direction:column;gap:5px">
+            <span class="badge badge-ok"><i class="ti ti-check"></i>Repassado em ${rep.data ? rep.data.split('-').reverse().join('/') : '—'}</span>
+            <button class="btn btn-sm whats-btn" style="font-size:11px" onclick="whatsRepasseProprietario('${im.id}','${mesStr}')"><i class="ti ti-brand-whatsapp"></i>Avisar proprietário</button>
+          </div>`
         : `<div style="display:flex;flex-direction:column;gap:5px">
             ${prop && prop.pix ? `<button class="btn btn-sm" style="font-size:11px" onclick="copiarPix('${prop.pix}')"><i class="ti ti-copy"></i>Copiar PIX</button>` : ''}
+            <button class="btn btn-sm whats-btn" style="font-size:11px" onclick="whatsAtrasoProprietario('${im.id}')"><i class="ti ti-brand-whatsapp"></i>Avisar atraso</button>
             <button class="btn btn-primary btn-sm" style="font-size:11px" onclick="openRepModal('${im.id}','${mesStr}','${prop ? prop.nome : ''}','${prop ? prop.pix : ''}','${liq}')">
               <i class="ti ti-check"></i>Marcar repassado
             </button>
@@ -684,7 +695,11 @@ function renderDetalhe() {
       ${prop.pix ? `<div class="pix-box"><i class="ti ti-brand-mastercard" style="color:var(--accent-text);font-size:16px"></i><span class="pix-key">${prop.pix}</span><button class="btn btn-sm" onclick="copiarPix('${prop.pix}')"><i class="ti ti-copy"></i></button></div>` : ''}
       <div class="info-row"><span class="info-lbl">Email</span><span class="info-val" style="font-size:11px">${prop.email || '—'}</span></div>
       <div class="info-row"><span class="info-lbl">Banco</span><span class="info-val">${prop.banco || '—'}</span></div>
-      <div class="info-row"><span class="info-lbl">Comissão Gerson</span><span class="info-val">${im.comissao || 10}%</span></div>`
+      <div class="info-row"><span class="info-lbl">Comissão Gerson</span><span class="info-val">${im.comissao || 10}%</span></div>
+      <div style="display:flex;gap:6px;margin-top:12px">
+        <button class="btn btn-sm whats-btn" style="flex:1;justify-content:center" onclick="whatsRepasseProprietario('${im.id}',null)"><i class="ti ti-brand-whatsapp"></i>Avisar repasse</button>
+        <button class="btn btn-sm whats-btn" style="flex:1;justify-content:center" onclick="whatsAtrasoProprietario('${im.id}')"><i class="ti ti-brand-whatsapp"></i>Avisar atraso</button>
+      </div>`
     : '<p style="font-size:12px;color:var(--text2)">Nenhum proprietário vinculado. <span class="link-text" onclick="goPage(\'proprietarios\')">Cadastrar</span></p>';
 
   document.getElementById('det-inq-info').innerHTML = inq
@@ -695,7 +710,11 @@ function renderDetalhe() {
       <div class="info-row"><span class="info-lbl">Aluguel</span><span class="info-val" style="color:var(--accent)">${fmt(im.valor)}/mês</span></div>
       <div class="info-row"><span class="info-lbl">Vencimento</span><span class="info-val">Todo dia ${im.venc || '—'}</span></div>
       ${inq.ini ? `<div class="info-row"><span class="info-lbl">Contrato</span><span class="info-val" style="font-size:11px">${inq.ini.slice(0, 7)} → ${inq.fim ? inq.fim.slice(0, 7) : 'Indeterminado'}</span></div>` : ''}
-      <div class="info-row"><span class="info-lbl">Email</span><span class="info-val" style="font-size:11px">${inq.email || '—'}</span></div>`
+      <div class="info-row"><span class="info-lbl">Email</span><span class="info-val" style="font-size:11px">${inq.email || '—'}</span></div>
+      <div style="display:flex;gap:6px;margin-top:12px">
+        <button class="btn btn-sm whats-btn" style="flex:1;justify-content:center" onclick="whatsCobrancaInquilino('${im.id}',null)"><i class="ti ti-brand-whatsapp"></i>Cobrar aluguel</button>
+        <button class="btn btn-sm whats-btn" style="flex:1;justify-content:center" onclick="whatsAvisoVencimento('${im.id}')"><i class="ti ti-brand-whatsapp"></i>Aviso vencimento</button>
+      </div>`
     : '<p style="font-size:12px;color:var(--text2)">Nenhum inquilino vinculado. <span class="link-text" onclick="goPage(\'inquilinos\')">Cadastrar</span></p>';
 
   // Histórico 12 meses
@@ -827,6 +846,188 @@ function copiarPix(pix) {
 const extraCss = document.createElement('style');
 extraCss.textContent = `.link-text { cursor: pointer; color: var(--info-text); font-weight: 600; } .link-text:hover { text-decoration: underline; }`;
 document.head.appendChild(extraCss);
+
+// ===== WHATSAPP =====
+
+// Limpa número para formato internacional brasileiro
+function limparTel(tel) {
+  if (!tel) return '';
+  let n = tel.replace(/\D/g, '');
+  if (n.startsWith('0')) n = n.slice(1);
+  if (n.length === 11 || n.length === 10) n = '55' + n;
+  return n;
+}
+
+function abrirWhatsApp(tel, mensagem) {
+  const numero = limparTel(tel);
+  if (!numero) {
+    showToast('⚠️ Número de telefone não cadastrado');
+    return;
+  }
+  const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`;
+  window.open(url, '_blank');
+}
+
+// Modal central de WhatsApp — abre com mensagem pré-preenchida e editável
+function abrirModalWhats(titulo, tel, mensagem) {
+  document.getElementById('mw-titulo').textContent = titulo;
+  document.getElementById('mw-tel').value = tel || '';
+  document.getElementById('mw-msg').value = mensagem;
+  document.getElementById('mw-preview').textContent = mensagem;
+  document.getElementById('modal-whats').classList.add('open');
+  // Atualiza preview ao editar
+  document.getElementById('mw-msg').oninput = function() {
+    document.getElementById('mw-preview').textContent = this.value;
+  };
+}
+
+function enviarWhatsApp() {
+  const tel = document.getElementById('mw-tel').value.trim();
+  const msg = document.getElementById('mw-msg').value.trim();
+  if (!tel) { showToast('⚠️ Informe o número de WhatsApp'); return; }
+  if (!msg) { showToast('⚠️ A mensagem está vazia'); return; }
+  abrirWhatsApp(tel, msg);
+  closeModal('modal-whats');
+  showToast('📱 Abrindo WhatsApp...');
+}
+
+// ── MENSAGENS PRONTAS ──────────────────────────────────────────
+
+// Cobrar inquilino (pendente/atrasado)
+function whatsCobrancaInquilino(imovelId, mesRef) {
+  const im = DB.imoveis.find(x => x.id === imovelId);
+  if (!im) return;
+  const inq = DB.inqs.find(i => i.id === im.inqId);
+  if (!inq) { showToast('⚠️ Inquilino não cadastrado neste imóvel'); return; }
+  const now = new Date();
+  const mes = mesRef || `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const [y, m] = mes.split('-');
+  const nomeMes = MONTHS[parseInt(m)-1] + ' ' + y;
+  const msg =
+`Olá, ${inq.nome}! Tudo bem?
+
+Passando para lembrar que o aluguel referente a *${nomeMes}* do imóvel *${im.nome}* está com vencimento no dia *${im.venc}*.
+
+💰 *Valor: ${fmt(im.valor)}*
+
+Por favor, após realizar o pagamento, envie o comprovante para minha confirmação.
+
+Qualquer dúvida estou à disposição! 😊
+
+Atenciosamente,
+*Gerson Rosa — Corretor de Imóveis*`;
+  abrirModalWhats(`Cobrar inquilino — ${inq.nome}`, inq.tel, msg);
+}
+
+// Confirmar recebimento ao inquilino
+function whatsConfirmacaoInquilino(imovelId, mesRef) {
+  const im = DB.imoveis.find(x => x.id === imovelId);
+  if (!im) return;
+  const inq = DB.inqs.find(i => i.id === im.inqId);
+  if (!inq) { showToast('⚠️ Inquilino não cadastrado'); return; }
+  const pag = DB.pags.find(p => p.imovelId === imovelId && p.mes === mesRef);
+  const now = new Date();
+  const mes = mesRef || `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const [y, m] = mes.split('-');
+  const nomeMes = MONTHS[parseInt(m)-1] + ' ' + y;
+  const valor = pag ? fmt(pag.valor) : fmt(im.valor);
+  const msg =
+`Olá, ${inq.nome}! Tudo bem?
+
+✅ Confirmo o recebimento do pagamento do aluguel referente a *${nomeMes}* no valor de *${valor}*.
+
+Obrigado pela pontualidade! 👍
+
+Qualquer dúvida estou à disposição.
+
+Atenciosamente,
+*Gerson Rosa — Corretor de Imóveis*`;
+  abrirModalWhats(`Confirmar recebimento — ${inq.nome}`, inq.tel, msg);
+}
+
+// Aviso de vencimento próximo ao inquilino
+function whatsAvisoVencimento(imovelId) {
+  const im = DB.imoveis.find(x => x.id === imovelId);
+  if (!im) return;
+  const inq = DB.inqs.find(i => i.id === im.inqId);
+  if (!inq) { showToast('⚠️ Inquilino não cadastrado'); return; }
+  const now = new Date();
+  const nomeMes = MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+  const msg =
+`Olá, ${inq.nome}! Tudo bem?
+
+Passando para lembrar que o vencimento do aluguel de *${nomeMes}* do imóvel *${im.nome}* será no dia *${im.venc}*.
+
+💰 *Valor: ${fmt(im.valor)}*
+
+Após o pagamento, não esqueça de me enviar o comprovante. 😊
+
+Atenciosamente,
+*Gerson Rosa — Corretor de Imóveis*`;
+  abrirModalWhats(`Aviso de vencimento — ${inq.nome}`, inq.tel, msg);
+}
+
+// Aviso de repasse ao proprietário
+function whatsRepasseProprietario(imovelId, mesRef) {
+  const im = DB.imoveis.find(x => x.id === imovelId);
+  if (!im) return;
+  const prop = DB.props.find(p => p.id === im.propId);
+  if (!prop) { showToast('⚠️ Proprietário não cadastrado'); return; }
+  const now = new Date();
+  const mes = mesRef || `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const pag = DB.pags.find(p => p.imovelId === imovelId && p.mes === mes && p.status === 'pago');
+  const [y, m] = mes.split('-');
+  const nomeMes = MONTHS[parseInt(m)-1] + ' ' + y;
+  const valorAluguel = pag ? pag.valor : im.valor;
+  const comissao = (im.comissao || 10) / 100 * valorAluguel;
+  const liquido = valorAluguel - comissao;
+  const msg =
+`Olá, ${prop.nome}! Tudo bem?
+
+Informo que já realizei o repasse referente ao aluguel de *${nomeMes}* do imóvel *${im.nome}*.
+
+📋 *Detalhamento:*
+• Aluguel recebido: ${fmt(valorAluguel)}
+• Comissão (${im.comissao || 10}%): - ${fmt(comissao)}
+• *Valor repassado: ${fmt(liquido)}*
+
+${prop.pix ? `💳 *Chave PIX utilizada:* ${prop.pix}` : ''}
+
+Qualquer dúvida estou à disposição!
+
+Atenciosamente,
+*Gerson Rosa — Corretor de Imóveis*`;
+  abrirModalWhats(`Aviso de repasse — ${prop.nome}`, prop.tel, msg);
+}
+
+// Informar atraso ao proprietário
+function whatsAtrasoProprietario(imovelId) {
+  const im = DB.imoveis.find(x => x.id === imovelId);
+  if (!im) return;
+  const prop = DB.props.find(p => p.id === im.propId);
+  if (!prop) { showToast('⚠️ Proprietário não cadastrado'); return; }
+  const inq = DB.inqs.find(i => i.id === im.inqId);
+  const now = new Date();
+  const nomeMes = MONTHS[now.getMonth()] + ' ' + now.getFullYear();
+  const msg =
+`Olá, ${prop.nome}! Tudo bem?
+
+Gostaria de informar que o aluguel referente a *${nomeMes}* do imóvel *${im.nome}* ainda não foi recebido${inq ? ` do inquilino *${inq.nome}*` : ''}.
+
+Já estou realizando a cobrança e assim que receber o pagamento farei o repasse imediatamente.
+
+Mantenho você informado! 
+
+Atenciosamente,
+*Gerson Rosa — Corretor de Imóveis*`;
+  abrirModalWhats(`Informar atraso — ${prop.nome}`, prop.tel, msg);
+}
+
+// Mensagem livre (personalizada)
+function whatsPersonalizado(nome, tel) {
+  const msg = `Olá, ${nome}! Tudo bem?\n\n\n\nAtenciosamente,\n*Gerson Rosa — Corretor de Imóveis*`;
+  abrirModalWhats(`Mensagem para ${nome}`, tel, msg);
+}
 
 // ===== INIT =====
 loadDB();
