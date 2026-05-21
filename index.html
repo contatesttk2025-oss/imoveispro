@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ImóvelPro — Gerson Rosa</title>
+<title>ImobiGest — Gerson Rosa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
@@ -11,23 +11,20 @@
 </head>
 <body>
 
-<!-- LOADING INICIAL -->
+<!-- LOADING -->
 <div id="tela-loading" class="login-wrap">
   <div style="text-align:center;color:#fff">
     <div style="font-size:52px;margin-bottom:16px"><i class="ti ti-building-estate"></i></div>
-    <div style="font-size:20px;font-weight:600;font-family:'DM Serif Display',serif">ImóvelPro</div>
+    <div style="font-size:20px;font-weight:600;font-family:'DM Serif Display',serif">ImobiGest</div>
     <div style="font-size:13px;opacity:.7;margin-top:8px">Carregando...</div>
   </div>
 </div>
 
-<!-- TELA DE LOGIN -->
+<!-- LOGIN -->
 <div id="tela-login" class="login-wrap" style="display:none">
   <div class="login-card">
-    <div class="login-logo">
-      <div class="splash-mark"><i class="ti ti-building-estate"></i></div>
-      <span>ImóvelPro</span>
-    </div>
-    <h1 class="login-title">Bem-vindo, <br><em>Gerson Rosa</em></h1>
+    <div class="login-logo"><div class="splash-mark"><i class="ti ti-building-estate"></i></div><span>ImobiGest</span></div>
+    <h1 class="login-title">Bem-vindo,<br><em>Gerson Rosa</em></h1>
     <p class="login-sub">Seu sistema de gestão de locações. Faça login para continuar.</p>
     <div class="fl" style="margin-bottom:12px">
       <label>E-mail</label>
@@ -45,22 +42,17 @@
       <span id="login-btn-txt"><i class="ti ti-lock"></i> Entrar no sistema</span>
       <span id="login-btn-load" style="display:none"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> Entrando...</span>
     </button>
-    <div class="login-footer">ImóvelPro · Gestão de locações anuais · Itajaí - SC</div>
+    <div class="login-footer">ImobiGest · Sistema de Gestão Imobiliária · Itajaí - SC</div>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app" class="app" style="display:none">
   <header class="topbar">
-    <div class="logo">
-      <div class="logo-mark"><i class="ti ti-building-estate"></i></div>
-      ImóvelPro
-    </div>
+    <div class="logo"><div class="logo-mark"><i class="ti ti-building-estate"></i></div>ImobiGest</div>
     <div class="topbar-r">
-      <div class="sync-indicator" id="sync-indicator" title="Sincronizado com a nuvem">
-        <i class="ti ti-cloud-check" id="sync-icon" style="color:var(--accent)"></i>
-      </div>
-      <div class="icon-btn" onclick="showToast('Verificando notificações...')" title="Notificações">
+      <div class="sync-indicator"><i class="ti ti-cloud-check" id="sync-icon" style="color:var(--accent)"></i></div>
+      <div class="icon-btn" onclick="goPage('alertas')" title="Alertas" style="position:relative">
         <i class="ti ti-bell"></i>
         <div class="notif-dot" id="notif-dot" style="display:none"></div>
       </div>
@@ -71,6 +63,7 @@
   <nav class="sidebar">
     <span class="nav-sec">Principal</span>
     <button class="nav-item active" onclick="goPage('dashboard')" id="nav-dashboard"><i class="ti ti-layout-dashboard"></i>Dashboard</button>
+    <button class="nav-item" onclick="goPage('alertas')" id="nav-alertas"><i class="ti ti-bell"></i>Alertas<span class="nav-badge" id="nb-alertas" style="display:none"></span></button>
     <button class="nav-item" onclick="goPage('imoveis')" id="nav-imoveis"><i class="ti ti-building-estate"></i>Imóveis<span class="nav-badge ok" id="nb-imoveis">0</span></button>
     <button class="nav-item" onclick="goPage('pagamentos')" id="nav-pagamentos"><i class="ti ti-receipt"></i>Pagamentos<span class="nav-badge" id="nb-pag" style="display:none"></span></button>
     <button class="nav-item" onclick="goPage('repasses')" id="nav-repasses"><i class="ti ti-send"></i>Repasses</button>
@@ -96,6 +89,13 @@
         <div class="stat"><div class="stat-lbl">Inadimplentes</div><div class="stat-val" id="ds-late">0</div><div class="stat-sub" id="ds-late-sub">este mês</div></div>
         <div class="stat"><div class="stat-lbl">Sua comissão</div><div class="stat-val" id="ds-comissao">R$ 0</div><div class="stat-sub" id="ds-com-sub">sobre recebimentos</div></div>
       </div>
+      <div id="dash-alertas-banner" style="display:none" class="alerta-banner">
+        <div style="display:flex;align-items:center;gap:10px">
+          <i class="ti ti-bell" style="font-size:22px"></i>
+          <div><div style="font-weight:600;font-size:15px" id="dash-alerta-txt">Contratos vencendo</div><div style="font-size:12px;opacity:.85" id="dash-alerta-sub">Verifique a aba Alertas</div></div>
+        </div>
+        <button class="btn btn-sm" style="background:#fff;color:var(--warn-text)" onclick="goPage('alertas')"><i class="ti ti-arrow-right"></i>Ver alertas</button>
+      </div>
       <div class="card">
         <div class="card-head"><div class="card-title">⚠️ Pendentes este mês</div><button class="btn btn-sm" onclick="goPage('pagamentos')">Ver todos</button></div>
         <div id="dash-pend-list"><div class="empty-state" style="padding:24px"><i class="ti ti-check"></i><p>Nenhum pendente</p><span>Todos os imóveis estão em dia</span></div></div>
@@ -104,6 +104,14 @@
         <div class="repasse-banner-l"><h3 id="dash-rep-title">Repasse do mês</h3><p id="dash-rep-sub">Dia 15</p></div>
         <div><div style="font-size:12px;color:rgba(255,255,255,.75);margin-bottom:2px">A repassar</div><div class="repasse-banner-r" id="dash-rep-val">R$ 0</div></div>
       </div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div class="page" id="page-alertas">
+      <div class="ph">
+        <div><div class="ph-title">Alertas e Lembretes</div><div class="ph-sub" id="alertas-sub">Contratos próximos do vencimento</div></div>
+      </div>
+      <div id="alertas-lista"></div>
     </div>
 
     <!-- IMÓVEIS -->
@@ -116,24 +124,59 @@
         <button class="chip" onclick="setChip(this,'imoveis','pendente')">Pendentes</button>
         <button class="chip" onclick="setChip(this,'imoveis','atrasado')">Atrasados</button>
       </div>
-      <div class="card"><table><thead><tr><th style="width:25%">Imóvel</th><th style="width:19%">Inquilino</th><th style="width:17%">Proprietário</th><th style="width:12%">Aluguel</th><th style="width:8%">Venc.</th><th style="width:10%">Status</th><th style="width:115px"></th></tr></thead><tbody id="imoveis-tbody"></tbody></table></div>
+      <div class="card"><table><thead><tr><th style="width:25%">Imóvel</th><th style="width:18%">Inquilino</th><th style="width:16%">Proprietário</th><th style="width:11%">Aluguel</th><th style="width:7%">Venc.</th><th style="width:10%">Status</th><th style="width:120px"></th></tr></thead><tbody id="imoveis-tbody"></tbody></table></div>
     </div>
 
-    <!-- DETALHE -->
+    <!-- DETALHE IMÓVEL -->
     <div class="page" id="page-detalhe">
       <button class="back-btn" onclick="goPage('imoveis')"><i class="ti ti-arrow-left"></i>Voltar</button>
       <div class="ph">
         <div><div class="ph-title" id="det-nome">Imóvel</div><div class="ph-sub" id="det-end">Endereço</div></div>
-        <div style="display:flex;gap:8px"><button class="btn btn-sm" id="det-edit-btn"><i class="ti ti-edit"></i>Editar</button><button class="btn btn-primary btn-sm" onclick="openModal('modal-pag')"><i class="ti ti-plus"></i>Registrar pagamento</button></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm" id="det-edit-btn"><i class="ti ti-edit"></i>Editar</button>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-pag')"><i class="ti ti-plus"></i>Registrar pagamento</button>
+        </div>
       </div>
-      <div class="info-grid">
-        <div class="info-card"><div class="info-card-title"><i class="ti ti-user-circle"></i>Proprietário</div><div id="det-prop-info"></div></div>
-        <div class="info-card"><div class="info-card-title"><i class="ti ti-users"></i>Inquilino</div><div id="det-inq-info"></div></div>
+      <!-- Sub-abas do detalhe -->
+      <div class="sub-tabs" id="det-tabs">
+        <button class="sub-tab active" onclick="setDetTab(this,'geral')"><i class="ti ti-info-circle"></i>Geral</button>
+        <button class="sub-tab" onclick="setDetTab(this,'taxas')"><i class="ti ti-receipt-tax"></i>Taxas</button>
+        <button class="sub-tab" onclick="setDetTab(this,'fotos')"><i class="ti ti-camera"></i>Fotos / Vistorias</button>
+        <button class="sub-tab" onclick="setDetTab(this,'historico')"><i class="ti ti-history"></i>Histórico</button>
       </div>
-      <div class="card">
-        <div class="card-head"><div class="card-title">Histórico de pagamentos (12 meses)</div></div>
-        <div style="padding:16px 18px"><div class="hist-row" id="det-hist-cells"></div></div>
-        <table><thead><tr><th style="width:20%">Mês/Ano</th><th style="width:16%">Valor</th><th style="width:20%">Data pagamento</th><th style="width:15%">Status</th><th style="width:29%">Observação</th></tr></thead><tbody id="det-hist-tbody"></tbody></table>
+
+      <!-- ABA GERAL -->
+      <div id="det-tab-geral">
+        <div class="info-grid">
+          <div class="info-card"><div class="info-card-title"><i class="ti ti-user-circle"></i>Proprietário</div><div id="det-prop-info"></div></div>
+          <div class="info-card"><div class="info-card-title"><i class="ti ti-users"></i>Inquilino</div><div id="det-inq-info"></div></div>
+        </div>
+        <div class="info-card" style="margin-bottom:18px"><div class="info-card-title"><i class="ti ti-notes"></i>Observações</div><div id="det-obs-info" style="font-size:13px;color:var(--text2)">—</div></div>
+      </div>
+
+      <!-- ABA TAXAS -->
+      <div id="det-tab-taxas" style="display:none">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><i class="ti ti-receipt-tax"></i> Taxas e Encargos</div><button class="btn btn-sm btn-primary" onclick="openModalTaxa()"><i class="ti ti-plus"></i>Adicionar taxa</button></div>
+          <table><thead><tr><th style="width:28%">Tipo</th><th style="width:22%">Responsável</th><th style="width:18%">Valor</th><th style="width:20%">Vencimento</th><th style="width:100px"></th></tr></thead><tbody id="det-taxas-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ABA FOTOS/VISTORIAS -->
+      <div id="det-tab-fotos" style="display:none">
+        <div class="card">
+          <div class="card-head"><div class="card-title"><i class="ti ti-camera"></i> Fotos e Vistorias</div><button class="btn btn-sm btn-primary" onclick="openModalFoto()"><i class="ti ti-upload"></i>Adicionar</button></div>
+          <div id="det-fotos-grid" style="padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px"></div>
+        </div>
+      </div>
+
+      <!-- ABA HISTÓRICO -->
+      <div id="det-tab-historico" style="display:none">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Histórico de pagamentos (12 meses)</div></div>
+          <div style="padding:16px 18px"><div class="hist-row" id="det-hist-cells"></div></div>
+          <table><thead><tr><th style="width:20%">Mês/Ano</th><th style="width:16%">Valor</th><th style="width:20%">Data pagamento</th><th style="width:15%">Status</th><th style="width:29%">Observação</th></tr></thead><tbody id="det-hist-tbody"></tbody></table>
+        </div>
       </div>
     </div>
 
@@ -151,7 +194,7 @@
         <button class="chip" onclick="setChip(this,'pag','pendente')">Pendentes</button>
         <button class="chip" onclick="setChip(this,'pag','atrasado')">Atrasados</button>
       </div>
-      <div class="card"><table><thead><tr><th style="width:24%">Imóvel</th><th style="width:19%">Inquilino</th><th style="width:13%">Valor</th><th style="width:15%">Recebido em</th><th style="width:12%">Status</th><th style="width:125px"></th></tr></thead><tbody id="pag-tbody"></tbody></table></div>
+      <div class="card"><table><thead><tr><th style="width:24%">Imóvel</th><th style="width:18%">Inquilino</th><th style="width:13%">Valor</th><th style="width:15%">Recebido em</th><th style="width:12%">Status</th><th style="width:130px"></th></tr></thead><tbody id="pag-tbody"></tbody></table></div>
     </div>
 
     <!-- REPASSES -->
@@ -179,13 +222,15 @@
     <div class="page" id="page-inquilinos">
       <div class="ph"><div><div class="ph-title">Inquilinos</div><div class="ph-sub" id="inq-sub">0 cadastrados</div></div><button class="btn btn-primary" onclick="openModal('modal-inq')"><i class="ti ti-plus"></i>Cadastrar</button></div>
       <div class="search-wrap"><i class="ti ti-search"></i><input class="search-input" placeholder="Buscar inquilino..." id="search-inq" oninput="renderInqs()"></div>
-      <div class="card"><table><thead><tr><th style="width:24%">Nome</th><th style="width:22%">Imóvel</th><th style="width:18%">Telefone</th><th style="width:22%">Contrato</th><th style="width:95px"></th></tr></thead><tbody id="inq-tbody"></tbody></table></div>
+      <div class="card"><table><thead><tr><th style="width:22%">Nome</th><th style="width:18%">Imóvel</th><th style="width:15%">Telefone</th><th style="width:18%">Contrato</th><th style="width:14%">Documentos</th><th style="width:95px"></th></tr></thead><tbody id="inq-tbody"></tbody></table></div>
     </div>
 
   </main>
 </div>
 
-<!-- MODAIS -->
+<!-- ===== MODAIS ===== -->
+
+<!-- Imóvel -->
 <div class="modal-overlay" id="modal-imovel">
 <div class="modal"><button class="close-btn" onclick="closeModal('modal-imovel')"><i class="ti ti-x"></i></button>
   <div class="modal-title" id="mi-title">Cadastrar imóvel</div><div class="modal-sub">Preencha os dados do imóvel</div>
@@ -198,6 +243,7 @@
   <div class="mfooter"><input type="hidden" id="mi-edit-id"><button class="btn" onclick="closeModal('modal-imovel')">Cancelar</button><button class="btn btn-primary" onclick="saveImovel()"><i class="ti ti-check"></i>Salvar</button></div>
 </div></div>
 
+<!-- Proprietário -->
 <div class="modal-overlay" id="modal-prop">
 <div class="modal"><button class="close-btn" onclick="closeModal('modal-prop')"><i class="ti ti-x"></i></button>
   <div class="modal-title" id="mp-title">Cadastrar proprietário</div><div class="modal-sub">Dados e chave PIX do proprietário</div>
@@ -210,6 +256,7 @@
   <div class="mfooter"><input type="hidden" id="mp-edit-id"><button class="btn" onclick="closeModal('modal-prop')">Cancelar</button><button class="btn btn-primary" onclick="saveProp()"><i class="ti ti-check"></i>Salvar</button></div>
 </div></div>
 
+<!-- Inquilino -->
 <div class="modal-overlay" id="modal-inq">
 <div class="modal"><button class="close-btn" onclick="closeModal('modal-inq')"><i class="ti ti-x"></i></button>
   <div class="modal-title" id="minq-title">Cadastrar inquilino</div><div class="modal-sub">Dados do locatário</div>
@@ -220,6 +267,101 @@
   <div class="mfooter"><input type="hidden" id="minq-edit-id"><button class="btn" onclick="closeModal('modal-inq')">Cancelar</button><button class="btn btn-primary" onclick="saveInq()"><i class="ti ti-check"></i>Salvar</button></div>
 </div></div>
 
+<!-- Documentos do Inquilino -->
+<div class="modal-overlay" id="modal-docs">
+<div class="modal" style="max-width:560px"><button class="close-btn" onclick="closeModal('modal-docs')"><i class="ti ti-x"></i></button>
+  <div class="modal-title" id="mdocs-title">Documentos</div>
+  <div class="modal-sub">Contratos e documentos do inquilino armazenados na nuvem</div>
+  <div id="mdocs-lista" style="margin-bottom:16px"></div>
+  <div style="border:2px dashed var(--border2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;background:var(--surface2)" onclick="document.getElementById('doc-file-input').click()">
+    <i class="ti ti-upload" style="font-size:28px;color:var(--text3);display:block;margin-bottom:6px"></i>
+    <div style="font-size:13px;color:var(--text2)">Clique para selecionar arquivo</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px">PDF, DOC, DOCX, JPG, PNG — máx. 5MB</div>
+  </div>
+  <input type="file" id="doc-file-input" style="display:none" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png" onchange="uploadDocumento(event)">
+  <div id="doc-upload-progress" style="display:none;margin-top:10px">
+    <div style="font-size:12px;color:var(--text2);margin-bottom:4px" id="doc-progress-txt">Enviando...</div>
+    <div class="prog-bar"><div class="prog-fill" id="doc-prog-fill" style="width:0%;transition:width .3s"></div></div>
+  </div>
+  <input type="hidden" id="mdocs-inq-id">
+  <div class="mfooter"><button class="btn" onclick="closeModal('modal-docs')">Fechar</button></div>
+</div></div>
+
+<!-- Taxa -->
+<div class="modal-overlay" id="modal-taxa">
+<div class="modal"><button class="close-btn" onclick="closeModal('modal-taxa')"><i class="ti ti-x"></i></button>
+  <div class="modal-title" id="mtaxa-title">Adicionar taxa</div><div class="modal-sub">IPTU, água, luz e outros encargos</div>
+  <div class="fl"><label>Tipo de taxa</label>
+    <select id="mtaxa-tipo">
+      <option value="IPTU">IPTU</option>
+      <option value="Água">Água</option>
+      <option value="Luz / Energia">Luz / Energia</option>
+      <option value="Gás">Gás</option>
+      <option value="Condomínio">Condomínio</option>
+      <option value="Internet">Internet</option>
+      <option value="Seguro">Seguro Incêndio</option>
+      <option value="Outra">Outra</option>
+    </select>
+  </div>
+  <div class="fl" id="mtaxa-outro-wrap" style="display:none"><label>Descrição da taxa</label><input id="mtaxa-outro" placeholder="Ex: Taxa de bombeiro..."></div>
+  <div class="fgrid">
+    <div class="fl"><label>Responsável</label>
+      <select id="mtaxa-resp">
+        <option value="Inquilino">Inquilino</option>
+        <option value="Proprietário">Proprietário</option>
+        <option value="Condomínio">Condomínio</option>
+      </select>
+    </div>
+    <div class="fl"><label>Valor (R$)</label><input id="mtaxa-valor" type="number" placeholder="0,00" min="0" step="0.01"></div>
+  </div>
+  <div class="fgrid">
+    <div class="fl"><label>Periodicidade</label>
+      <select id="mtaxa-periodo">
+        <option value="Mensal">Mensal</option>
+        <option value="Anual">Anual</option>
+        <option value="Bimestral">Bimestral</option>
+        <option value="Semestral">Semestral</option>
+        <option value="Único">Único</option>
+      </select>
+    </div>
+    <div class="fl"><label>Dia / mês de vencimento</label><input id="mtaxa-venc" placeholder="Ex: 10 ou Março"></div>
+  </div>
+  <div class="fl"><label>Observações</label><textarea id="mtaxa-obs" placeholder="Informações adicionais..."></textarea></div>
+  <div class="mfooter"><input type="hidden" id="mtaxa-edit-id"><input type="hidden" id="mtaxa-imovel-id"><button class="btn" onclick="closeModal('modal-taxa')">Cancelar</button><button class="btn btn-primary" onclick="saveTaxa()"><i class="ti ti-check"></i>Salvar</button></div>
+</div></div>
+
+<!-- Foto / Vistoria -->
+<div class="modal-overlay" id="modal-foto">
+<div class="modal"><button class="close-btn" onclick="closeModal('modal-foto')"><i class="ti ti-x"></i></button>
+  <div class="modal-title">Adicionar foto / vistoria</div><div class="modal-sub">Registre o estado do imóvel com foto e descrição</div>
+  <div class="fl"><label>Tipo</label>
+    <select id="mfoto-tipo">
+      <option value="Vistoria de entrada">Vistoria de entrada</option>
+      <option value="Vistoria de saída">Vistoria de saída</option>
+      <option value="Vistoria periódica">Vistoria periódica</option>
+      <option value="Foto do imóvel">Foto do imóvel</option>
+      <option value="Manutenção">Manutenção</option>
+      <option value="Outro">Outro</option>
+    </select>
+  </div>
+  <div class="fl"><label>Data</label><input id="mfoto-data" type="date"></div>
+  <div class="fl"><label>Descrição / observações</label><textarea id="mfoto-desc" placeholder="Descreva o estado do imóvel, o que foi verificado..."></textarea></div>
+  <div style="border:2px dashed var(--border2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;background:var(--surface2);margin-bottom:8px" onclick="document.getElementById('foto-file-input').click()">
+    <i class="ti ti-photo" style="font-size:28px;color:var(--text3);display:block;margin-bottom:6px"></i>
+    <div style="font-size:13px;color:var(--text2)">Clique para selecionar imagem</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px">JPG, PNG, WEBP — máx. 5MB</div>
+  </div>
+  <input type="file" id="foto-file-input" style="display:none" accept="image/*" onchange="previewFoto(event)">
+  <div id="foto-preview-area" style="display:none;margin-bottom:8px">
+    <img id="foto-preview-img" style="width:100%;border-radius:var(--r);max-height:200px;object-fit:cover">
+  </div>
+  <div id="foto-upload-progress" style="display:none">
+    <div class="prog-bar"><div class="prog-fill" id="foto-prog-fill" style="width:0%;transition:width .3s"></div></div>
+  </div>
+  <div class="mfooter"><input type="hidden" id="mfoto-imovel-id"><button class="btn" onclick="closeModal('modal-foto')">Cancelar</button><button class="btn btn-primary" onclick="salvarFoto()"><i class="ti ti-check"></i>Salvar</button></div>
+</div></div>
+
+<!-- Pagamento -->
 <div class="modal-overlay" id="modal-pag">
 <div class="modal"><button class="close-btn" onclick="closeModal('modal-pag')"><i class="ti ti-x"></i></button>
   <div class="modal-title" id="mpag-title">Registrar pagamento</div><div class="modal-sub">Confirme os dados do comprovante recebido</div>
@@ -230,6 +372,7 @@
   <div class="mfooter"><input type="hidden" id="mpag-edit-id"><button class="btn" onclick="closeModal('modal-pag')">Cancelar</button><button class="btn btn-primary" onclick="savePag()"><i class="ti ti-check"></i>Registrar</button></div>
 </div></div>
 
+<!-- Repasse -->
 <div class="modal-overlay" id="modal-rep">
 <div class="modal"><button class="close-btn" onclick="closeModal('modal-rep')"><i class="ti ti-x"></i></button>
   <div class="modal-title">Confirmar repasse</div><div class="modal-sub" id="mrep-sub">Proprietário</div>
@@ -239,6 +382,7 @@
   <div class="mfooter"><input type="hidden" id="mrep-imovel-id"><input type="hidden" id="mrep-mes"><button class="btn" onclick="closeModal('modal-rep')">Cancelar</button><button class="btn btn-primary" onclick="saveRepasse()"><i class="ti ti-check"></i>Confirmar repasse</button></div>
 </div></div>
 
+<!-- WhatsApp -->
 <div class="modal-overlay" id="modal-whats">
 <div class="modal" style="max-width:520px"><button class="close-btn" onclick="closeModal('modal-whats')"><i class="ti ti-x"></i></button>
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
