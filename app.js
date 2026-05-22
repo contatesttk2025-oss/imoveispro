@@ -2,13 +2,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, doc, setDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBt193mClty0jKJNAqkms29tjOqmh2yafA",
   authDomain: "imovel-pro-gerson.firebaseapp.com",
   projectId: "imovel-pro-gerson",
-  storageBucket: "imovel-pro-gerson.firebasestorage.app",
   messagingSenderId: "86696290419",
   appId: "1:86696290419:web:21e94f796415f737256206"
 };
@@ -16,7 +14,6 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
 const db = getFirestore(firebaseApp);
-const storage = getStorage(firebaseApp);
 
 // ===== CONSTANTES =====
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
@@ -385,42 +382,47 @@ async function salvarFoto(){
   const desc=document.getElementById('mfoto-desc').value.trim();
   if(!imovelId){showToast('⚠️ Erro: imóvel não identificado');return;}
 
-  const id=uid();
-  let fotoUrl='';
-
+  // Comprimir imagem se existir
+  let fotoBase64='';
   if(fotoFileBase64){
-    // Upload para Firebase Storage
     try{
-      const progArea=document.getElementById('foto-upload-progress');
-      const progFill=document.getElementById('foto-prog-fill');
-      progArea.style.display='block';
-      const fileInput=document.getElementById('foto-file-input');
-      const file=fileInput.files[0];
-      const storageRef=ref(storage,`users/${currentUser.uid}/fotos/${id}_${file.name}`);
-      const task=uploadBytesResumable(storageRef,file);
-      fotoUrl=await new Promise((res,rej)=>{
-        task.on('state_changed',snap=>{
-          progFill.style.width=Math.round(snap.bytesTransferred/snap.totalBytes*100)+'%';
-        },rej,async()=>{res(await getDownloadURL(task.snapshot.ref));});
-      });
-      progArea.style.display='none';
-    }catch(e){showToast('❌ Erro ao enviar imagem');return;}
+      fotoBase64=await comprimirImagem(fotoFileBase64,800,0.7);
+      // Verificar tamanho (~1MB limite Firestore por campo)
+      if(fotoBase64.length>1_300_000){
+        fotoBase64=await comprimirImagem(fotoFileBase64,600,0.5);
+      }
+      if(fotoBase64.length>1_300_000){
+        showToast('⚠️ Imagem muito grande mesmo comprimida. Use uma foto menor.');
+        return;
+      }
+    }catch(e){showToast('❌ Erro ao processar imagem');return;}
   }
 
-  const obj={id,imovelId,tipo,data,desc,fotoUrl,criadoEm:new Date().toISOString()};
+  const id=uid();
+  const obj={id,imovelId,tipo,data,desc,fotoBase64,criadoEm:new Date().toISOString()};
   try{await fsSet('fotos',obj);closeModal('modal-foto');renderFotos();showToast('✅ Registro salvo!');}catch(e){}
 }
 window.salvarFoto=salvarFoto;
 
+// Comprime imagem via canvas
+function comprimirImagem(base64,maxWidth,quality){
+  return new Promise((res,rej)=>{
+    const img=new Image();
+    img.onload=()=>{
+      const canvas=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(w>maxWidth){h=Math.round(h*maxWidth/w);w=maxWidth;}
+      canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      res(canvas.toDataURL('image/jpeg',quality));
+    };
+    img.onerror=rej;
+    img.src=base64;
+  });
+}
+
 async function delFoto(id){
   if(!confirm('Excluir este registro?'))return;
-  const foto=DB.fotos.find(f=>f.id===id);
-  if(foto&&foto.fotoUrl){
-    try{
-      const storageRef=ref(storage,`users/${currentUser.uid}/fotos/${id}_`);
-      await deleteObject(storageRef).catch(()=>{});
-    }catch(e){}
-  }
   try{await fsDel('fotos',id);renderFotos();showToast('Registro removido');}catch(e){}
 }
 window.delFoto=delFoto;
@@ -432,13 +434,13 @@ function renderFotos(){
   if(!fotos.length){grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state" style="padding:32px"><i class="ti ti-camera"></i><p>Nenhuma foto ou vistoria</p><span>Clique em "Adicionar" para registrar</span></div></div>`;return;}
   grid.innerHTML=fotos.map(f=>`
     <div class="foto-card">
-      ${f.fotoUrl?`<img src="${f.fotoUrl}" alt="Foto" loading="lazy">`:`<div style="height:120px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--border2)"><i class="ti ti-camera"></i></div>`}
+      ${f.fotoBase64?`<img src="${f.fotoBase64}" alt="Foto" loading="lazy">`:`<div style="height:120px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--border2)"><i class="ti ti-camera"></i></div>`}
       <div class="foto-card-body">
         <div class="foto-card-tipo">${f.tipo}</div>
         <div class="foto-card-data"><i class="ti ti-calendar" style="font-size:11px"></i> ${f.data?f.data.split('-').reverse().join('/'):'—'}</div>
         <div class="foto-card-desc">${f.desc||'Sem descrição'}</div>
         <div style="margin-top:8px;display:flex;gap:6px">
-          ${f.fotoUrl?`<a href="${f.fotoUrl}" target="_blank" class="btn btn-sm" style="font-size:11px"><i class="ti ti-external-link"></i>Ver</a>`:''}
+          ${f.fotoBase64?`<a href="${f.fotoBase64}" download="vistoria.jpg" class="btn btn-sm" style="font-size:11px"><i class="ti ti-download"></i>Baixar</a>`:''}
           <button class="btn btn-sm btn-danger" style="font-size:11px" onclick="delFoto('${f.id}')"><i class="ti ti-trash"></i></button>
         </div>
       </div>
@@ -469,7 +471,7 @@ function renderDocsList(inqId){
         <div class="doc-data">Enviado em ${d.criadoEm?d.criadoEm.slice(0,10).split('-').reverse().join('/'):'—'}</div>
       </div>
       <div style="display:flex;gap:6px">
-        <a href="${d.url}" target="_blank" class="btn btn-sm"><i class="ti ti-download"></i></a>
+        <a href="${d.base64||d.url||'#'}" download="${d.nome}" class="btn btn-sm"><i class="ti ti-download"></i>Baixar</a>
         <button class="btn btn-sm btn-danger" onclick="delDoc('${d.id}')"><i class="ti ti-trash"></i></button>
       </div>
     </div>`).join('');
@@ -477,38 +479,36 @@ function renderDocsList(inqId){
 
 async function uploadDocumento(event){
   const file=event.target.files[0]; if(!file)return;
-  if(file.size>5*1024*1024){showToast('⚠️ Arquivo maior que 5MB');return;}
+  if(file.size>900*1024){showToast('⚠️ Arquivo maior que 900KB. Comprima o PDF antes de enviar.');event.target.value='';return;}
   const inqId=document.getElementById('mdocs-inq-id').value;
   const progArea=document.getElementById('doc-upload-progress');
   const progFill=document.getElementById('doc-prog-fill');
   const progTxt=document.getElementById('doc-progress-txt');
   progArea.style.display='block';
-  progTxt.textContent='Enviando '+file.name+'...';
+  progTxt.textContent='Salvando '+file.name+'...';
+  progFill.style.width='30%';
   const id=uid();
   try{
-    const storageRef=ref(storage,`users/${currentUser.uid}/docs/${inqId}/${id}_${file.name}`);
-    const task=uploadBytesResumable(storageRef,file);
-    const url=await new Promise((res,rej)=>{
-      task.on('state_changed',snap=>{
-        progFill.style.width=Math.round(snap.bytesTransferred/snap.totalBytes*100)+'%';
-      },rej,async()=>{res(await getDownloadURL(task.snapshot.ref));});
+    const base64=await new Promise((res,rej)=>{
+      const reader=new FileReader();
+      reader.onload=e=>res(e.target.result);
+      reader.onerror=rej;
+      reader.readAsDataURL(file);
     });
-    const obj={id,inqId,nome:file.name,url,criadoEm:new Date().toISOString()};
+    progFill.style.width='70%';
+    const obj={id,inqId,nome:file.name,base64,criadoEm:new Date().toISOString()};
     await fsSet('docs',obj);
-    progArea.style.display='none';
+    progFill.style.width='100%';
+    setTimeout(()=>{progArea.style.display='none';},400);
     renderDocsList(inqId);
-    showToast('✅ Documento enviado!');
-  }catch(e){progArea.style.display='none';showToast('❌ Erro ao enviar documento');}
+    showToast('✅ Documento salvo!');
+  }catch(e){progArea.style.display='none';showToast('❌ Erro ao salvar documento. Tente um arquivo menor.');}
   event.target.value='';
 }
 window.uploadDocumento=uploadDocumento;
 
 async function delDoc(id){
   if(!confirm('Excluir este documento?'))return;
-  const doc=DB.docs.find(d=>d.id===id);
-  if(doc&&doc.url){
-    try{const r=ref(storage,doc.url);await deleteObject(r).catch(()=>{});}catch(e){}
-  }
   try{
     await fsDel('docs',id);
     renderDocsList(document.getElementById('mdocs-inq-id').value);
