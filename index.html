@@ -264,6 +264,12 @@
   <div class="fgrid"><div class="fl"><label>Telefone / WhatsApp</label><input id="minq-tel" placeholder="(47) 9xxxx-xxxx"></div><div class="fl"><label>Email</label><input id="minq-email" placeholder="email@exemplo.com" type="email"></div></div>
   <div class="fgrid"><div class="fl"><label>Início do contrato</label><input id="minq-ini" type="date"></div><div class="fl"><label>Fim do contrato</label><input id="minq-fim" type="date"></div></div>
   <div class="fl"><label>Observações</label><textarea id="minq-obs" placeholder="Notas adicionais..."></textarea></div>
+  <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:4px">
+    <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px"><i class="ti ti-shield-check" style="font-size:14px"></i> Avalista</div>
+    <div class="fgrid"><div class="fl"><label>Nome do avalista</label><input id="minq-aval-nome" placeholder="Nome completo"></div><div class="fl"><label>CPF do avalista</label><input id="minq-aval-cpf" placeholder="000.000.000-00"></div></div>
+    <div class="fgrid"><div class="fl"><label>Telefone do avalista</label><input id="minq-aval-tel" placeholder="(47) 9xxxx-xxxx"></div><div class="fl"><label>Email do avalista</label><input id="minq-aval-email" placeholder="email@exemplo.com" type="email"></div></div>
+    <div class="fl"><label>Endereço do avalista</label><input id="minq-aval-end" placeholder="Endereço completo"></div>
+  </div>
   <div class="mfooter"><input type="hidden" id="minq-edit-id"><button class="btn" onclick="closeModal('modal-inq')">Cancelar</button><button class="btn btn-primary" onclick="saveInq()"><i class="ti ti-check"></i>Salvar</button></div>
 </div></div>
 
@@ -299,6 +305,7 @@
       <option value="Gás">Gás</option>
       <option value="Condomínio">Condomínio</option>
       <option value="Internet">Internet</option>
+      <option value="Lixo">Lixo / Coleta de Lixo</option>
       <option value="Seguro">Seguro Incêndio</option>
       <option value="Outra">Outra</option>
     </select>

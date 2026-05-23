@@ -197,7 +197,7 @@ function openModal(id){
   if(id==='modal-inq'){
     document.getElementById('minq-edit-id').value='';
     document.getElementById('minq-title').textContent='Cadastrar inquilino';
-    ['minq-nome','minq-cpf','minq-tel','minq-email','minq-obs'].forEach(x=>document.getElementById(x).value='');
+    ['minq-nome','minq-cpf','minq-tel','minq-email','minq-obs','minq-aval-nome','minq-aval-cpf','minq-aval-tel','minq-aval-email','minq-aval-end'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('minq-ini').value='';
     document.getElementById('minq-fim').value='';
   }
@@ -247,7 +247,7 @@ window.saveProp=saveProp;
 
 async function saveInq(){
   const id=document.getElementById('minq-edit-id').value||uid();
-  const obj={id,nome:document.getElementById('minq-nome').value.trim(),cpf:document.getElementById('minq-cpf').value.trim(),tel:document.getElementById('minq-tel').value.trim(),email:document.getElementById('minq-email').value.trim(),ini:document.getElementById('minq-ini').value,fim:document.getElementById('minq-fim').value,obs:document.getElementById('minq-obs').value.trim()};
+  const obj={id,nome:document.getElementById('minq-nome').value.trim(),cpf:document.getElementById('minq-cpf').value.trim(),tel:document.getElementById('minq-tel').value.trim(),email:document.getElementById('minq-email').value.trim(),ini:document.getElementById('minq-ini').value,fim:document.getElementById('minq-fim').value,obs:document.getElementById('minq-obs').value.trim(),avalNome:document.getElementById('minq-aval-nome').value.trim(),avalCpf:document.getElementById('minq-aval-cpf').value.trim(),avalTel:document.getElementById('minq-aval-tel').value.trim(),avalEmail:document.getElementById('minq-aval-email').value.trim(),avalEnd:document.getElementById('minq-aval-end').value.trim()};
   if(!obj.nome){showToast('⚠️ Informe o nome');return;}
   try{await fsSet('inqs',obj);closeModal('modal-inq');showToast('✅ Inquilino salvo!');}catch(e){}
 }
@@ -342,8 +342,8 @@ function renderTaxas(){
     <td style="font-weight:600;color:var(--accent)">${t.valor?fmt(t.valor):'—'}</td>
     <td style="font-size:12px">${t.periodo||'—'}${t.venc?' · dia/mês: '+t.venc:''}</td>
     <td><div class="acts">
-      <button class="btn btn-sm" onclick="openModalTaxa('${t.id}')"><i class="ti ti-edit"></i></button>
-      <button class="btn btn-sm btn-danger" onclick="delTaxa('${t.id}')"><i class="ti ti-trash"></i></button>
+      <button class="btn btn-sm" onclick="openModalTaxa('${t.id}')"><i class="ti ti-edit"></i> Editar</button>
+      <button class="btn btn-sm btn-danger" onclick="delTaxa('${t.id}')"><i class="ti ti-trash"></i> Excluir</button>
     </div></td>
   </tr>`).join('');
 }
@@ -618,6 +618,11 @@ function editInq(id){
   document.getElementById('minq-edit-id').value=i.id;
   document.getElementById('minq-title').textContent='Editar inquilino';
   ['nome','cpf','tel','email','obs'].forEach(f=>document.getElementById('minq-'+f).value=i[f]||'');
+  document.getElementById('minq-aval-nome').value=i.avalNome||'';
+  document.getElementById('minq-aval-cpf').value=i.avalCpf||'';
+  document.getElementById('minq-aval-tel').value=i.avalTel||'';
+  document.getElementById('minq-aval-email').value=i.avalEmail||'';
+  document.getElementById('minq-aval-end').value=i.avalEnd||'';
   document.getElementById('minq-ini').value=i.ini||'';
   document.getElementById('minq-fim').value=i.fim||'';
   document.getElementById('modal-inq').classList.add('open');
@@ -707,12 +712,12 @@ function renderImoveis(){
       <td>Dia ${im.venc||'—'}</td>
       <td>${badgeHtml(status)}</td>
       <td><div class="acts">
-        <button class="btn btn-sm" title="Ver" onclick="goPage('detalhe','${im.id}')"><i class="ti ti-eye"></i></button>
-        <button class="btn btn-sm" title="Editar" onclick="editImovel('${im.id}')"><i class="ti ti-edit"></i></button>
+        <button class="btn btn-sm" title="Ver detalhes" onclick="goPage('detalhe','${im.id}')"><i class="ti ti-eye"></i> Ver</button>
+        <button class="btn btn-sm" title="Editar" onclick="editImovel('${im.id}')"><i class="ti ti-edit"></i> Editar</button>
         ${status!=='pago'
           ?`<button class="btn btn-sm whats-btn" title="Cobrar via WhatsApp" onclick="whatsCobrancaInquilino('${im.id}','${mes}')"><i class="ti ti-brand-whatsapp"></i></button>`
           :`<button class="btn btn-sm whats-btn" title="Confirmar recebimento" onclick="whatsConfirmacaoInquilino('${im.id}','${mes}')"><i class="ti ti-brand-whatsapp"></i></button>`}
-        <button class="btn btn-sm btn-danger" title="Excluir" onclick="delImovel('${im.id}')"><i class="ti ti-trash"></i></button>
+        <button class="btn btn-sm btn-danger" title="Excluir" onclick="delImovel('${im.id}')"><i class="ti ti-trash"></i> Excluir</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -732,8 +737,8 @@ function renderProps(){
     <td style="font-size:12px">${p.email||'—'}</td>
     <td><div class="acts">
       <button class="btn btn-sm whats-btn" onclick="whatsPersonalizado('${p.nome}','${p.tel}')"><i class="ti ti-brand-whatsapp"></i></button>
-      <button class="btn btn-sm" onclick="editProp('${p.id}')"><i class="ti ti-edit"></i></button>
-      <button class="btn btn-sm btn-danger" onclick="delProp('${p.id}')"><i class="ti ti-trash"></i></button>
+      <button class="btn btn-sm" onclick="editProp('${p.id}')"><i class="ti ti-edit"></i> Editar</button>
+      <button class="btn btn-sm btn-danger" onclick="delProp('${p.id}')"><i class="ti ti-trash"></i> Excluir</button>
     </div></td>
   </tr>`).join('');
 }
@@ -766,8 +771,8 @@ function renderInqs(){
       <td><button class="btn btn-sm" onclick="abrirDocs('${i.id}')"><i class="ti ti-files"></i>${ndocs>0?` (${ndocs})`:''}</button></td>
       <td><div class="acts">
         ${im?`<button class="btn btn-sm whats-btn" onclick="whatsCobrancaInquilino('${im.id}',null)"><i class="ti ti-brand-whatsapp"></i></button>`:`<button class="btn btn-sm whats-btn" onclick="whatsPersonalizado('${i.nome}','${i.tel}')"><i class="ti ti-brand-whatsapp"></i></button>`}
-        <button class="btn btn-sm" onclick="editInq('${i.id}')"><i class="ti ti-edit"></i></button>
-        <button class="btn btn-sm btn-danger" onclick="delInq('${i.id}')"><i class="ti ti-trash"></i></button>
+        <button class="btn btn-sm" onclick="editInq('${i.id}')"><i class="ti ti-edit"></i> Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="delInq('${i.id}')"><i class="ti ti-trash"></i> Excluir</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -909,6 +914,7 @@ function renderDetalhe(){
       <div class="info-row"><span class="info-lbl">Vencimento</span><span class="info-val">Dia ${im.venc||'—'}</span></div>
       ${inq.ini?`<div class="info-row"><span class="info-lbl">Contrato</span><span class="info-val" style="font-size:11px">${inq.ini.slice(0,7)} → ${inq.fim?inq.fim.slice(0,7):'Indeterminado'}</span></div>`:''}
       <div class="info-row"><span class="info-lbl">Email</span><span class="info-val" style="font-size:11px">${inq.email||'—'}</span></div>
+      ${inq.avalNome?`<div class="info-row"><span class="info-lbl">Avalista</span><span class="info-val" style="font-size:11px">${inq.avalNome}${inq.avalTel?' · '+inq.avalTel:''}</span></div>`:''}
       <div style="display:flex;gap:6px;margin-top:12px">
         <button class="btn btn-sm whats-btn" style="flex:1;justify-content:center" onclick="whatsCobrancaInquilino('${im.id}',null)"><i class="ti ti-brand-whatsapp"></i>Cobrar aluguel</button>
         <button class="btn btn-sm whats-btn" style="flex:1;justify-content:center" onclick="whatsAvisoVencimento('${im.id}')"><i class="ti ti-brand-whatsapp"></i>Aviso vencimento</button>

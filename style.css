@@ -69,8 +69,8 @@ html,body{height:100%;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;
 .btn:hover{background:var(--surface2)}
 .btn-primary{background:var(--accent);color:#fff;border-color:transparent}
 .btn-primary:hover{background:var(--accent2)}
-.btn-sm{padding:5px 12px;font-size:12px}
-.btn-danger{background:var(--danger-bg);color:var(--danger-text);border-color:transparent}
+.btn-sm{padding:6px 13px;font-size:12.5px;font-weight:600}
+.btn-danger{background:var(--danger-bg);color:var(--danger-text);border-color:#f5c6b6;font-weight:700}
 .btn-danger:hover{filter:brightness(.95)}
 .whats-btn{background:#f0fdf4;color:#166534;border-color:#bbf7d0}
 .whats-btn:hover{background:#dcfce7;border-color:#25D366}
@@ -104,7 +104,7 @@ tr:hover td{background:var(--surface2)}
 .badge-late{background:var(--danger-bg);color:var(--danger-text)}
 .badge-info{background:var(--info-bg);color:var(--info-text)}
 
-.acts{display:flex;gap:5px}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
 
 /* MODAIS */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
@@ -244,3 +244,7 @@ tr:hover td{background:var(--surface2)}
   .login-card{padding:36px 24px}
   .login-title{font-size:26px}
 }
+
+/* AVALISTA */
+.avalista-section{border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-top:8px;background:var(--surface2)}
+.avalista-title{font-size:11px;font-weight:700;color:var(--accent-text);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
